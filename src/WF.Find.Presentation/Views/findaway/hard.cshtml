@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewBag.Title = "hard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1 class="page-header">Hard</h1>
+<hr />
+<div class="row">
+    <div class="col-xs-12 col-md-8 col-md-offset-3">
+        <table class="game">
+            <thead>
+                <tr>
+                    <th class="vazio"></th>
+                    <th colspan="5" class="header">Side A</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 7; i++)
+                {
+                    string step = "step" + i;
+                    int value = i + 1;
+                    <tr id="@step">
+                        <td class="step">Step @value</td>
+                        @for (int j = 0; j < 5; j++)
+                        {
+                            if (i == 0)
+                            {
+                                <td><button id="@j" class="btn btn-info path">?</button></td>
+                            }
+                            else
+                            {
+                                <td id="cel_@j"><button id="@j" class="btn btn-info path" disabled>?</button></td>
+                            }
+
+                        }
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="vazio"></th>
+                    <th colspan="5" class="header">Side B</th>
+                </tr>
+            </tfoot>
+        </table>        
+    </div>
+</div>
+
+<script>
+    var step = 0;
+    var prox;
+    var todos = [];
+
+   
+    $(document).ready(function () {
+        $(".path").click(function () {
+
+            var value = "";
+            value = $(this).get(0).id;
+
+            $.ajax({
+                url: "/findaway/ObterProximo",
+                method: "POST",
+                async: false,
+                data: { step: step, value: value },
+            }).done(function (result) {
+                prox = result.prox;
+            });
+
+            if (step == 0) {
+                $(".path").text('');
+            }
+
+
+            if (prox) {
+                step++;
+                $(this).text('V');
+                $(this).css("background-color", "green");
+                var td = $("#step" + step + "> td > :button");
+                $(td).each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                if (step == 7) {
+                    $("#hd").text("Parabéns");
+                    $("#txt").text("Parabéns, isso foi muito difícil.");
+                    $('#modal').show();
+                }
+            } else {
+
+                $.ajax({
+                    url: "/findaway/ObterTodos",
+                    type: 'POST',
+                    async: false,
+                }).done(function (result) {
+                    todos = result.todos;
+
+                });
+                $(this).text('X');
+                $(this).css("color", "red");
+                var stepRest = 7 - step;
+                for (step; step < 7; step++) {
+                    var td = $("#step" + step + "> td > :button");
+                    $(td).each(function () {
+                        if ($(this).get(0).id == todos[step]) {
+                            $(this).text('V');
+                            $(this).css("background-color", "green");
+                            return;
+                        }
+                    });
+                }
+                $("#hd").text("Haaa que pena");
+                $("#txt").text("Oh não, apenas a " + stepRest + " passos de distância.");
+                $('#modal').show();
+            }
+        });
+    });
+</script>
+

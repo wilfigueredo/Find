@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<style>
+    .easy {
+        margin-bottom: 1%;
+    }
+
+    .normal {
+        margin-bottom: 1%;
+    }
+
+    .btn {
+        width: 30%;
+    }
+</style>
+<h1 class="page-header">Find</h1>
+<hr />
+<div class="row easy">
+    <div class="col-xs-12 col-md-offset-4">
+        @Html.ActionLink("Easy", "easy", "findaway", null, new { @class = "btn btn-primary" })
+    </div>
+</div>
+
+<div class="row normal">
+    <div class="col-xs-12 col-md-offset-4">
+        @Html.ActionLink("Normal", "normal", "findaway", null, new { @class = "btn btn-primary" })
+    </div>
+</div>
+
+<div class="row hard">
+    <div class="col-xs-12 col-md-offset-4">
+        @Html.ActionLink("Hard", "hard", "findaway", null, new { @class = "btn btn-primary" })
+    </div>
+</div>

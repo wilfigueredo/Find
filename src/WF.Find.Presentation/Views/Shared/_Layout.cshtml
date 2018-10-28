@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Meu Aplicativo ASP.NET</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Find", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Início", "Index", "Home")</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+
+        <div class="modal" id="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="hd" class="modal-title"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="txt"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="recarregar()">Try again</button>
+                        <button type="button" class="btn btn-primary" onclick="compartilhar()"><span class="tooltiptext" id="myTooltip">Share Stage</span></button>
+                        <button type="button" class="btn btn-primary" onclick="convite()">Invite a Friend</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="modalEmail" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Invite</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="recipient-name" class="col-form-label">Name:</label>
+                                <input type="text" class="form-control" id="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">Email:</label>
+                                <input type="text" class="form-control" id="email">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="sendEmail()">Send message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @RenderBody()
+        <hr />
+
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Find ASP.NET</p>
+        </footer>
+    </div>
+    <script>
+        $(".cancel").click(function () {
+            $(".modal").hide();
+        });
+        $(".close").click(function () {
+            $(".modal").hide();
+        });
+
+        function recarregar() {
+            $('#modal').hide();
+            location.reload();
+        }
+
+        function compartilhar() {
+            var location = window.location.href;
+
+            var id = "";
+            $.ajax({
+                url: "/Home/GenerateGuid",
+                method: "POST",
+                async: false,
+            }).done(function (result) {
+                id = result.id;
+                });
+
+            var URL = location + "/" + id;            
+
+            var tooltip = document.getElementById("myTooltip");
+            tooltip.innerHTML = "Copied to clipboard ";
+        }
+
+        function convite() {
+            $('#modal').hide();
+            $('#modalEmail').show();
+        }
+
+        function sendEmail() {
+            var nome = $('#name').val();
+            var email = $('#email').val();
+            var send = false;
+            $.ajax({
+                url: "/Home/SendEmail",
+                method: "POST",
+                data: { email: email, nome: nome },
+                async: false,
+            }).done(function (result) {
+                send = result.send;
+                });
+
+            if (send) {
+                $('#modalEmail').hide();
+                alert("Convite enviado com sucesso!");
+                location.reload();
+            }
+
+            if (!send) {
+                $('#modalEmail').hide();
+                alert("Não foi posssivel enviar o convite");
+                location.reload();
+            }
+        }
+
+    </script>
+
+</body>
+</html>
